@@ -61,8 +61,6 @@ extern enuAnalyzer_RetType_t enuAnalyzer_Init(void);
 */
 extern enuAnalyzer_RetType_t enuAnalyzer_Deinit(void);
 
-extern uint16_t u16Analyzer_foo(uint16_t var);
-
 /*
 * \brief this function is called by UART IRQ when a byte is received
 */

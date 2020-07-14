@@ -128,7 +128,7 @@ void vidAnalyzer_putChar(uint8_t u8ReceivedByte)
   static uint8_t u8LenByteReceived = 0;
   static uint16_t u16PayloadByteReceived = 0;
 
-  PRINTF("# vidAnalyzer_putChar %d, %c\r\n", LOC_enuReceiverState, u8ReceivedByte);
+  // PRINTF("# vidAnalyzer_putChar %d, %c\r\n", LOC_enuReceiverState, u8ReceivedByte);
 
   switch(LOC_enuReceiverState)
   {
@@ -161,26 +161,32 @@ void vidAnalyzer_putChar(uint8_t u8ReceivedByte)
             LOC_u16PayloadLen += (uint16_t)u8AsciiToU8(u8ReceivedByte);
             bIsLsbReceived = true;
           }
-          PRINTF("\t### LOC_u16PayloadLen %x\r\n", LOC_u16PayloadLen);
+          PRINTF("\tLOC_u16PayloadLen %x\r\n", LOC_u16PayloadLen);
         }else
         {
           /*Handle the MSB*/
           if(u8LenByteReceived%2!=0){
             LOC_u16PayloadLen += ((uint16_t)(u8AsciiToU8(u8ReceivedByte) & u8ANALYZER_MSB_LEN_MASK) << 12);
             LOC_u8CommandLen = (u8AsciiToU8(u8ReceivedByte) & u8ANALYZER_MSB_CMD_MASK) >> u8ANALYZER_MSB_CMD_OFFSET;
-            PRINTF("\t### LOC_u8CommandLen %x\r\n", LOC_u8CommandLen);
+            PRINTF("\tLOC_u8CommandLen %x\r\n", LOC_u8CommandLen);
           }else{
             LOC_u16PayloadLen += (((uint16_t)u8AsciiToU8(u8ReceivedByte))<<8);
-            LOC_u64Command = 0;
-            u8CmdByteReceived = 0;
-            u8LenByteReceived = 0;
-            PRINTF("## CMD Len %d, Payload Len %d\r\n", LOC_u8CommandLen, LOC_u16PayloadLen);
-            // LOC_u16PayloadLen += u8ReceivedByte;
-            bIsLsbReceived = false;
-            LOC_enuReceiverState = enuCmd;
+
+            //assume only payloadlen = 0 is valid
+            if(0 != LOC_u8CommandLen){
+              LOC_u64Command = 0;
+              u8CmdByteReceived = 0;
+              u8LenByteReceived = 0;
+              PRINTF("\t\tCMD Len %d, Payload Len %d\r\n", LOC_u8CommandLen, LOC_u16PayloadLen);
+              // LOC_u16PayloadLen += u8ReceivedByte;
+              bIsLsbReceived = false;
+              LOC_enuReceiverState = enuCmd;
+            }else{
+              LOC_enuReceiverState = enuError;
+            }
           }
 
-          PRINTF("\t### LOC_u16PayloadLen %d\r\n", LOC_u16PayloadLen);
+          // PRINTF("\tLOC_u16PayloadLen %d\r\n", LOC_u16PayloadLen);
         }
       }else{
         /*invalid char received*/
@@ -194,14 +200,14 @@ void vidAnalyzer_putChar(uint8_t u8ReceivedByte)
       u8CmdByteReceived++;
       if(bIsCharValid(u8ReceivedByte))
       {
-        PRINTF("\t enuCmd %x\r\n", u8AsciiToU8(u8ReceivedByte));
+        PRINTF("\tenuCmd %x\r\n", u8AsciiToU8(u8ReceivedByte));
         if((u8CmdByteReceived/2) <= LOC_u8CommandLen)
         {
             LOC_u64Command += ((uint16_t)u8AsciiToU8(u8ReceivedByte) << ((u8CmdByteReceived-1)*4));
         }
 
         if(u8CmdByteReceived/2 == LOC_u8CommandLen){
-            PRINTF("## CMD %lx\r\n", LOC_u64Command);
+            PRINTF("\t\t CMD %lx\r\n", LOC_u64Command);
             u16PayloadByteReceived = 0;
             /*move to payload reception*/
             LOC_enuReceiverState = enuPayload;
@@ -221,13 +227,13 @@ void vidAnalyzer_putChar(uint8_t u8ReceivedByte)
       {
         /*EOF is received*/
         if(u8ANALYZER_END_OF_FRAME_CHAR == u8ReceivedByte){
-          PRINTF("\t enuPayload EOF ");
+          PRINTF("\tenuPayload EOF ");
           //and length is valid
           if((u16PayloadByteReceived-1)/2 == LOC_u16PayloadLen){
             PRINTF("OK\r\n");
-            LOC_au8Payload[LOC_u16PayloadLen+1] = '\0';
+            LOC_au8Payload[LOC_u16PayloadLen] = '\0';
             /*frame reception is complete*/
-            LOC_pFrameHandlerCbk(LOC_u64Command, LOC_au8Payload, LOC_u8CommandLen);
+            LOC_pFrameHandlerCbk(LOC_u64Command, LOC_au8Payload, LOC_u16PayloadLen);
             LOC_u8ErrorCounter=0;
             LOC_enuReceiverState = enuIdle;
           }else{
@@ -266,6 +272,7 @@ void vidAnalyzer_putChar(uint8_t u8ReceivedByte)
 
   if(enuError == LOC_enuReceiverState)
   {
+    LOC_au8Payload[0] = '\0';
     if(u8ANALYZER_ERROR_MAX <= LOC_u8ErrorCounter++)
     {
       LOC_u8ErrorCounter=0;
@@ -273,12 +280,6 @@ void vidAnalyzer_putChar(uint8_t u8ReceivedByte)
       LOC_pErrorCbk();
     }
   }
-}
-
-uint16_t u16Analyzer_foo(uint16_t var)
-{
-  assert(LOC_bIsInitialized);
-  return var+1;
 }
 
 /*****************************************************************************/
