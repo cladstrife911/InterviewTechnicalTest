@@ -7,15 +7,15 @@ CFLAGS+=-MMD  # generate dependency .d files
 LDLIBS=
 LDFLAGS=
 
-SRCS=testu/testAnalyzer.c src/Analyzer.c
-TARGETS=output/testAnalyzer output/Analyzer.a
+SRCS=src/Analyzer_test.c src/Analyzer.c
+TARGETS=src/Analyzer_test Analyzer.a
+OUT_DIR=./output
 
-src/Analyzer.o: src/Analyzer.c
-testu/testAnalyzer.o: testu/testAnalyzer.c
-output/Analyzer.a: src/Analyzer.o
-output/testAnalyzer: testu/testAnalyzer.o output/Analyzer.a
+# Analyzer.o: src/Analyzer.c
+Analyzer.a: src/Analyzer.o
+src/Analyzer_test: src/Analyzer_test.o Analyzer.a
 
-TEST_SUITE=testu/testAnalyzer
+TEST_SUITE=src/Analyzer_test
 
 .DEFAULT_GOAL=all
 .PHONY: all

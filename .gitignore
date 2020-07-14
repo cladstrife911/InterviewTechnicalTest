@@ -1,3 +1,7 @@
 /output/*.a
 /output/*.d
 /output/*.o
+/src/*.d
+/src/*.o
+/src/Analyzer_test
+/*.a

@@ -8,7 +8,7 @@ typedef enum{
 }enuAnalyzer_RetType_t;
 
 
-extern enuAnalyzer_RetType_t enuAnalyzer_Init();
-extern int iAnalyzer_foo(int var);
+enuAnalyzer_RetType_t enuAnalyzer_Init();
+int iAnalyzer_foo(int var);
 
 #endif /*_ANALYZER_H_*/
