@@ -1,9 +1,9 @@
-/output/*.a
-/src/*.d
-/src/*.o
-/testu/*.d
-/testu/*.o
+/**/*.a
+/**/*.d
+/**/*.o
 /testu/Analyzer_test
 /*.info
 /*.out
 /coverage
+/**/*.gcda
+/**/*.gcno
