@@ -175,12 +175,12 @@ void vidAnalyzer_putChar(uint8_t u8ReceivedByte)
             u8CmdByteReceived = 0;
             u8LenByteReceived = 0;
             PRINTF("## CMD Len %d, Payload Len %d\r\n", LOC_u8CommandLen, LOC_u16PayloadLen);
-            LOC_u16PayloadLen += u8ReceivedByte;
+            // LOC_u16PayloadLen += u8ReceivedByte;
             bIsLsbReceived = false;
             LOC_enuReceiverState = enuCmd;
           }
 
-          PRINTF("\t### LOC_u16PayloadLen %x\r\n", LOC_u16PayloadLen);
+          PRINTF("\t### LOC_u16PayloadLen %d\r\n", LOC_u16PayloadLen);
         }
       }else{
         /*invalid char received*/
@@ -217,29 +217,38 @@ void vidAnalyzer_putChar(uint8_t u8ReceivedByte)
     {
       u16PayloadByteReceived++;
       /*check valid byte or end of frame and buffer overflow*/
-      if((bIsCharValid(u8ReceivedByte) || u8ANALYZER_END_OF_FRAME_CHAR == u8ReceivedByte) \
-          && (u16PayloadByteReceived/2 <= (u16ANALYZER_MAX_PAYLOAD_SIZE-1)))
+      if(bIsCharValid(u8ReceivedByte) || (u8ANALYZER_END_OF_FRAME_CHAR == u8ReceivedByte) )
       {
-        PRINTF("\t enuPayload %x, %d\r\n", u8AsciiToU8(u8ReceivedByte), u16PayloadByteReceived);
-        if((u16PayloadByteReceived/2 == LOC_u16PayloadLen) && (u8ANALYZER_END_OF_FRAME_CHAR == u8ReceivedByte))
-        {
-          PRINTF("\t enuPayload EOF OK\r\n");
-          LOC_au8Payload[LOC_u16PayloadLen+1] = '\0';
-          /*frame reception is complete*/
-          LOC_pFrameHandlerCbk(LOC_u64Command, LOC_au8Payload, LOC_u8CommandLen);
-          LOC_u8ErrorCounter=0;
-          LOC_enuReceiverState = enuIdle;
-        }else if(u16PayloadByteReceived/2 < LOC_u16PayloadLen)
-        {
-          if(u16PayloadByteReceived%2!=0){
-            LOC_au8Payload[u16PayloadByteReceived/2] = u8AsciiToU8(u8ReceivedByte)<<4;
+        /*EOF is received*/
+        if(u8ANALYZER_END_OF_FRAME_CHAR == u8ReceivedByte){
+          PRINTF("\t enuPayload EOF ");
+          //and length is valid
+          if((u16PayloadByteReceived-1)/2 == LOC_u16PayloadLen){
+            PRINTF("OK\r\n");
+            LOC_au8Payload[LOC_u16PayloadLen+1] = '\0';
+            /*frame reception is complete*/
+            LOC_pFrameHandlerCbk(LOC_u64Command, LOC_au8Payload, LOC_u8CommandLen);
+            LOC_u8ErrorCounter=0;
+            LOC_enuReceiverState = enuIdle;
           }else{
-            LOC_au8Payload[u16PayloadByteReceived/2-1] += u8AsciiToU8(u8ReceivedByte);
+            PRINTF("KO\r\n");
+            LOC_enuReceiverState = enuError;
           }
-        }else if(u8ANALYZER_END_OF_FRAME_CHAR == u8ReceivedByte)
-        {
-          /*unexpected end of frame received*/
-          LOC_enuReceiverState = enuError;
+        }else{
+          //continue payload reception
+          if((u16ANALYZER_MAX_PAYLOAD_SIZE-1) <= u16PayloadByteReceived/2 )
+          {
+            //Max frame length reached
+            LOC_enuReceiverState = enuError;
+          }else{
+            PRINTF("\t enuPayload %x, %d\r\n",u8AsciiToU8(u8ReceivedByte) ,u16PayloadByteReceived);
+            //Append data to the payload buffer
+            if(u16PayloadByteReceived%2!=0){
+              LOC_au8Payload[u16PayloadByteReceived/2] = u8AsciiToU8(u8ReceivedByte)<<4;
+            }else{
+              LOC_au8Payload[u16PayloadByteReceived/2-1] += u8AsciiToU8(u8ReceivedByte);
+            }
+          }
         }
       }else{
         /*invalid char received*/
