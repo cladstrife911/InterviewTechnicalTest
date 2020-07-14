@@ -8,14 +8,14 @@ LDLIBS=
 LDFLAGS=
 
 SRCS=src/Analyzer_test.c src/Analyzer.c
-TARGETS=src/Analyzer_test Analyzer.a
+TARGETS=testu/Analyzer_test output/Analyzer.a
 OUT_DIR=./output
 
 # Analyzer.o: src/Analyzer.c
-Analyzer.a: src/Analyzer.o
-src/Analyzer_test: src/Analyzer_test.o Analyzer.a
+output/Analyzer.a: src/Analyzer.o
+testu/Analyzer_test: testu/Analyzer_test.o output/Analyzer.a
 
-TEST_SUITE=src/Analyzer_test
+TEST_SUITE=testu/Analyzer_test
 
 .DEFAULT_GOAL=all
 .PHONY: all
