@@ -1,3 +1,7 @@
+/*
+* local header only used for unit testing of static functions
+*/
+
 #ifndef _ANALYZER_LOC_H_
 #define _ANALYZER_LOC_H_
 

@@ -1,3 +1,7 @@
+/*
+* configuration header for the Analyzer module
+*/
+
 #ifndef _ANALYZER_CFG_H_
 #define _ANALYZER_CFG_H_
 
