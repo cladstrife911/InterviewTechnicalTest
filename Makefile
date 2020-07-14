@@ -1,3 +1,5 @@
+#based on https://github.com/rikusalminen/makefile-for-c/blob/master/Makefile
+
 CC=cc
 CFLAGS=-std=c99
 CFLAGS+=-W -Wall
@@ -7,7 +9,7 @@ CFLAGS+=-MMD  # generate dependency .d files
 LDLIBS=
 LDFLAGS=
 
-SRCS=src/Analyzer_test.c src/Analyzer.c
+SRCS=testu/Analyzer_test.c src/Analyzer.c
 TARGETS=testu/Analyzer_test output/Analyzer.a
 OUT_DIR=./output
 

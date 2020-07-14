@@ -4,3 +4,6 @@
 /testu/*.d
 /testu/*.o
 /testu/Analyzer_test
+/*.info
+/*.out
+/coverage
