@@ -18,6 +18,8 @@ Running tests will write out profile and coverage information to `gmon.out`
 Run `make profile` to generate `gprof.out`.
 Run `make coverage` to generate `coverage/index.html` using `lcov`.
 
-* make PROFILE=1 COVERAGE=1
 * make test
 * make PROFILE=1 COVERAGE=1 coverage profile
+
+# to be improved
+* customize makefile for static function unit testing

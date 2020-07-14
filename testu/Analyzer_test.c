@@ -11,6 +11,7 @@
 /* INCLUSION OF OWNER HEADERS                                                */
 /*****************************************************************************/
 #include "Analyzer.h"
+#include "Analyzer_loc.h" //for static functions
 
 /*****************************************************************************/
 /* LOCAL VARIABLES                                                           */
@@ -51,6 +52,7 @@ int main(int argc, char *argv[])
   vidFeedAnalyzer("!0040AABB?", true);   //valid frame: payload len 0
   vidFeedAnalyzer("!1340AABB01234567890123456789012345678901234567?", true);   //valid frame
 
+  vidFeedAnalyzer("!0360AABBCC0123450", false);   //invalid frame : invalid EOF
   vidFeedAnalyzer("!FF41AABB012345?", false);     //invalid frame: payload size exceeded
   vidFeedAnalyzer("!0360A?ABBCC012345?", false);  //invalid frame: '?' not well placed
   vidFeedAnalyzer("!0300AABBCC012345?", false);   //invalid frame: cmd len = 0
@@ -61,6 +63,20 @@ int main(int argc, char *argv[])
   vidFeedAnalyzer("!03?", false);    //invalid frame: truncated len
 
   assert(enuAnalayzer_Ok == enuAnalyzer_Deinit());
+
+  /* test the static functions*/
+  assert(bIsCharValid('1') == true);
+  assert(bIsCharValid('0') == true);
+  assert(bIsCharValid('A') == true);
+  assert(bIsCharValid('F') == true);
+  assert(bIsCharValid('G') == false);
+  assert(bIsCharValid(' ') == false);
+  assert(u8AsciiToU8('0') == 0);
+  assert(u8AsciiToU8('9') == 9);
+  assert(u8AsciiToU8('A') == 0x0A);
+  assert(u8AsciiToU8('F') == 0x0F);
+  assert(u8AsciiToU8('x') == 0xFF);
+
 
   printf("Test done with success!\r\n");
   return 0;

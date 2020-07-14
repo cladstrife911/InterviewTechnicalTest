@@ -24,7 +24,9 @@ TEST_SUITE=testu/Analyzer_test
 all: $(TARGETS)
 
 SRC_DIR ?= $(patsubst %/,%, $(dir $(abspath $(firstword $(MAKEFILE_LIST)))))
-CFLAGS+=-I$(SRC_DIR)/include
+CFLAGS+=-I$(SRC_DIR)/include -I$(SRC_DIR)/src
+#add precompiler define UNIT_TEST
+CFLAGS+=-DUNIT_TEST
 
 .PHONY: clean
 clean:

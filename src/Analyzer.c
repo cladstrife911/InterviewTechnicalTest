@@ -11,8 +11,9 @@
 /*****************************************************************************/
 /* INCLUSION OF OWNER HEADERS                                                */
 /*****************************************************************************/
-#include "Analyzer.h"
 #include "Analyzer_cfg.h"
+#include "Analyzer.h"
+#include "Analyzer_loc.h"
 
 /*****************************************************************************/
 /* LOCAL MACROS AND DEFINED CONSTANTS                                        */
@@ -31,6 +32,13 @@
 #else
   #define PRINTF(...) ((void)0)
 #endif
+
+#ifdef UNIT_TEST
+  #define unit_static
+#else
+  #define unit_static static
+#endif
+
 
 /*****************************************************************************/
 /*  LOCAL ENUM                                                               */
@@ -68,9 +76,11 @@ static Analyzer_vidErrorCbk LOC_pErrorCbk;
 /*****************************************************************************/
 /* LOCAL FUNCTION PROTOTYPES                                                 */
 /*****************************************************************************/
-static void vidInitLocalVar(void);
-static bool bIsCharValid(uint8_t u8Char);
-static uint8_t u8AsciiToU8(uint8_t u8Char);
+#ifndef UNIT_TEST
+  unit_static void vidInitLocalVar(void);
+  unit_static bool bIsCharValid(uint8_t u8Char);
+  unit_static uint8_t u8AsciiToU8(uint8_t u8Char);
+#endif
 
 /*****************************************************************************/
 /* GLOBAL FUNCTION                                                            */
@@ -288,7 +298,7 @@ void vidAnalyzer_putChar(uint8_t u8ReceivedByte)
 /*
 * \brief initialize all the local variables
 */
-static void vidInitLocalVar(void){
+unit_static void vidInitLocalVar(void){
   LOC_bIsInitialized = false;
   LOC_enuReceiverState = enuIdle;
   LOC_u8ErrorCounter = 0;
@@ -306,9 +316,9 @@ static void vidInitLocalVar(void){
 * \param u8Char the char to test
 * \return true if the param is valid, false otherwise
 */
-static bool bIsCharValid(uint8_t u8Char)
+unit_static bool bIsCharValid(uint8_t u8Char)
 {
-  if((u8Char >='0' && u8Char<='9') || (u8Char >='A' && u8Char<'F')){
+  if((u8Char >='0' && u8Char<='9') || (u8Char >='A' && u8Char<='F')){
     return true;
   }else{
     return false;
@@ -320,11 +330,11 @@ static bool bIsCharValid(uint8_t u8Char)
 * \param u8Char the char to convert in ASCII format
 * \return the HEX value corresponding to the ASCII char, 0xFF for invalid format
 */
-static uint8_t u8AsciiToU8(uint8_t u8Char)
+unit_static uint8_t u8AsciiToU8(uint8_t u8Char)
 {
   if(u8Char >='0' && u8Char<='9'){
     return u8Char-'0';
-  }else if(u8Char >='A' && u8Char<'F')
+  }else if(u8Char >='A' && u8Char<='F')
   {
     return u8Char-'A'+10;
   }else{
