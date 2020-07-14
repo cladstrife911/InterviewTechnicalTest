@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 void vidFeedAnalyzer(char* cmd, bool isTestExpectedTrue)
 {
   LOC_bErrorHandlerTriggered = false;
-  printf("==> vidFeedAnalyzer: %s\r\n",cmd);
+  printf("==> vidFeedAnalyzer: %s",cmd);
   for(unsigned int i=0;i<strlen(cmd);i++)
   {
     vidAnalyzer_putChar(cmd[i]);
@@ -93,6 +93,8 @@ void vidFeedAnalyzer(char* cmd, bool isTestExpectedTrue)
 
   assert(isTestExpectedTrue == LOC_bFrameHandlerOk);
   LOC_bFrameHandlerOk = false;
+
+  printf(" => test OK\r\n");
 }
 
  void uart_error_handler(void)
